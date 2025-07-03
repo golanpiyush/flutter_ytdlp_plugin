@@ -1,0 +1,33 @@
+name: flutter_ytdlp_plugin
+description: A Flutter plugin for YouTube video streaming using yt-dlp. Supports fetching video formats, related videos, and more.
+version: 0.0.1
+homepage: https://github.com/golanpiyush/flutter_ytdlp_plugin
+repository: https://github.com/golanpiyush/flutter_ytdlp_plugin
+issue_tracker: https://github.com/golanpiyush/flutter_ytdlp_plugin/issues
+
+environment:
+  sdk: ^3.8.1
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  plugin:
+    platforms:
+      android:
+        package: com.example.flutter_ytdlp_plugin
+        pluginClass: FlutterYtdlpPlugin
+
