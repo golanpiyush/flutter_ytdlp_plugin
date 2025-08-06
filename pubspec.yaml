@@ -1,6 +1,6 @@
 name: flutter_ytdlp_plugin
 description: A Flutter plugin for YouTube video streaming using yt-dlp. Supports fetching video formats, related videos, and more.
-version: 2.0.0
+version: 2.0.1
 homepage: https://github.com/golanpiyush/flutter_ytdlp_plugin
 repository: https://github.com/golanpiyush/flutter_ytdlp_plugin
 issue_tracker: https://github.com/golanpiyush/flutter_ytdlp_plugin/issues
