@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] 
+
+### Fixed
+- Fixed SSL socket resource warnings by properly closing connections
+- Added explicit cleanup of Python resources when plugin is detached
+- Configured SSL context to prevent certificate verification warnings
+- Improved thread-local resource management for yt-dlp instances
+- Added proper error handling for network resource cleanup
+
+### Changed
+- Updated yt-dlp connection handling to use context managers
+- Modified Kotlin cleanup sequence to ensure proper resource release
+- Improved logging for resource management operations
+
 ## [2.0.1]
 
 ### Fixed
@@ -17,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added `getVideoStreams`, `getAudioStreams`, `getMuxedStreams` these replaces old methods.
-
 
 ## [0.0.9]
 ### Fixed

@@ -678,9 +678,15 @@ class FlutterYtdlpPlugin: FlutterPlugin, MethodCallHandler {
     pluginScope.cancel()
     
     // Clean up Python resources
+    try {
+        extractor?.callAttr("cleanup")
+    } catch (e: Exception) {
+        println("YTDLP_FLUTTER_DEBUG: Error during Python cleanup: ${e.message}")
+    }
+    
     extractor = null
     ytdlpModule = null
     python = null
     applicationContext = null
-  }
+}
 }

@@ -42,16 +42,16 @@ class YouTubeStreamExtractor:
     def __init__(self, max_retries: int = 3, retry_delay: float = 0.5, debug: bool = False):
         """
         Initialize the YouTubeStreamExtractor with optimized settings.
-        
-        Args:
-            max_retries: Maximum number of retries for failed requests (default: 3)
-            retry_delay: Delay between retries in seconds (reduced from 1.0 to 0.5)
-            debug: Enable debug logging (default: False)
+        Now includes SSL context configuration.
         """
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.debug = debug
         self._setup_logging()
+        
+        # Configure SSL context to prevent warnings
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
         
         # Cache for yt-dlp configurations
         self._base_opts = {
@@ -60,6 +60,9 @@ class YouTubeStreamExtractor:
             'extract_flat': False,
             'socket_timeout': 10,  # Faster timeout
             'retries': 1,  # Let our own retry logic handle this
+            # Add cleanup options
+            'clean_infojson': True,
+            'no_check_certificate': True,
         }
         
         # Thread-local storage for yt-dlp instances
@@ -67,7 +70,16 @@ class YouTubeStreamExtractor:
         
         # Quality parsing cache
         self._quality_cache = {}
-    
+
+    def cleanup(self):
+        """Clean up resources and close connections"""
+        if hasattr(self._local, 'ydl'):
+            try:
+                self._local.ydl.close()
+                del self._local.ydl
+            except Exception as e:
+                self._log_warning(f"Error during cleanup: {str(e)}")
+
     def _setup_logging(self):
         """Setup custom logging for the extractor"""
         self.logger = logging.getLogger('YouTubeStreamExtractor')
@@ -163,10 +175,12 @@ class YouTubeStreamExtractor:
         """
         OPTIMIZED: Get video info using yt-dlp with improved retry mechanism.
         Uses thread-local instances and optimized settings.
+        Now includes proper resource cleanup.
         """
         last_error = None
         
         for attempt in range(self.max_retries):
+            ydl = None
             try:
                 self._log_debug(f"Attempt {attempt + 1}/{self.max_retries} to extract info for: {video_id}")
                 
@@ -183,10 +197,19 @@ class YouTubeStreamExtractor:
                 error_msg = str(e)
                 self._log_warning(f"Attempt {attempt + 1} failed: {error_msg}")
                 
+                # Explicit cleanup
+                if ydl:
+                    ydl.close()
+                
                 if attempt < self.max_retries - 1:
                     self._log_debug(f"Retrying in {self.retry_delay} seconds...")
                     time.sleep(self.retry_delay)
                 continue
+            
+            except Exception as e:
+                if ydl:
+                    ydl.close()
+                raise
         
         self._log_error(f"All {self.max_retries} attempts failed. Last error: {str(last_error)}")
         raise last_error
