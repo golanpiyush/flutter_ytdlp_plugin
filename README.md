@@ -1,160 +1,253 @@
-# 🎬 flutter_ytdlp_plugin
+# Flutter YTDLP Plugin
 
-A powerful and lightweight Flutter plugin for fetching YouTube video/audio streams, metadata, and trending/search data using [`yt-dlp`](https://github.com/yt-dlp/yt-dlp). This plugin is designed for developers who want full control over YouTube content inside Flutter apps without relying on the YouTube API.
+[![pub package](https://img.shields.io/pub/v/flutter_ytdlp_plugin.svg)](https://pub.dev/packages/flutter_ytdlp_plugin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🔧 **Built on top of [Chopqy](https://github.com/golanpiyush/chopqy)** – a Python-powered engine for communicating with `yt-dlp` safely and efficiently via Chaquopy.
+A Flutter plugin that provides **YouTube stream extraction** capabilities using [yt-dlp](https://github.com/yt-dlp/yt-dlp).  
+This plugin uses [Chaquopy](https://chaquo.com/chaquopy/) to execute Python code on Android devices for advanced video/audio extraction.
+
+---
+
+## ✨ Features
+
+- ✅ Check video **availability status**
+- 🎥 Extract **video streams** with quality preferences
+- 🔊 Extract **audio streams** with bitrate preferences
+- 🔄 Get **unified streams** (video + audio) with codec options
+- ⚡ **Concurrent processing** for performance
+- 🐞 **Automatic debug mode** detection
+- 🛡️ **Robust error handling**
+
+---
+
+## 📱 Platform Support
+
+| Platform | Support        |
+|----------|----------------|
+| Android  | ✅ Supported   |
+| iOS      | ❌ Not supported |
+| Web      | ❌ Not supported |
+| Desktop  | ❌ Not supported |
 
 ---
 
 ## 📦 Installation
 
-### 1. Add Dependency
-
-In your `pubspec.yaml`:
+Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_ytdlp_plugin: ^0.0.5
+  flutter_ytdlp_plugin:
+    git:
+      url: https://github.com/your-repo/flutter_ytdlp_plugin.git
+      ref: main
 ```
 
-Then run:
+---
 
-```bash
-flutter pub get
-```
+## ⚙️ Android Setup
 
-### 2. Android Setup (Chaquopy)
+### 1. Add Chaquopy to `android/app/build.gradle`
 
-In `android/app/build.gradle`:
-
-```gradle
-plugins {
-    id 'com.android.application'
-    id 'com.chaquo.python'  // 👈 Required for Python execution
-}
-
+```groovy
 android {
     ...
     defaultConfig {
         ...
+        python {
+            version "3.8"
+        }
         ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a"
-        }
-    }
-}
-
-chaquopy {
-    python {
-        version "3.11"
-        pip {
-            install "yt-dlp"
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
 }
 ```
 
-> ✅ You can also bundle a compiled `yt-dlp` binary under `assets/python/` for offline use.
+### 2. Create `requirements.txt` in `android/app/`
 
----
-
-## 🚀 Features
-
-- 🔗 Fetch all streaming links (video/audio – all available qualities & formats)
-- 🎯 Extract best-quality video/audio URLs
-- 🔍 Search YouTube videos (fast and accurate)
-- 🧠 Get random videos (can be filtered by keyword/category)
-- 📈 Fetch trending videos in real-time
-- 📚 Retrieve full metadata (title, duration, thumbnail, views, etc.)
-- ⚙️ Customizable backend powered by `Chopqy` & `yt-dlp`
-- 🐍 Seamless Python (Chaquopy) integration with full Dart APIs
-- ✅ No need for YouTube API key or OAuth
-- 💡 Built for privacy-conscious, knowledge-seeking apps
-
----
-
-## 📘 API Reference
-
-### `getStreamingLinks(String url)`
-Returns all available video & audio stream links (with format, resolution, codec, etc.)
-
-```dart
-final links = await FlutterYTDLP.getStreamingLinks("https://youtu.be/...");
 ```
-
-### `getTrendingVideos()`
-Fetch trending YouTube videos from `yt-dlp`’s trending extractor.
-
-```dart
-final trending = await FlutterYTDLP.getTrendingVideos();
-```
-
-### `getRandomVideo({String? keyword})`
-Get a random YouTube video. You can filter by keyword or niche.
-
-```dart
-final random = await FlutterYTDLP.getRandomVideo(keyword: "science");
-```
-
-### `searchYTDLP(String query)`
-Search for YouTube videos using the provided query.
-
-```dart
-final results = await FlutterYTDLP.searchYTDLP("AI documentary");
-```
-
-### `getRelatedVideos(String videoId)`
-Get related/recommended videos based on a given YouTube video ID.
-
-```dart
-final related = await FlutterYTDLP.getRelatedVideos("dQw4w9WgXcQ");
+yt-dlp>=2023.11.16
 ```
 
 ---
 
-## 💡 Use Case Ideas
+## 🚀 Usage
 
-- Build your own **YouTube-like clone**
-- Create an **offline video player**
-- Design **smart music players** using audio-only links
-- Use it in **torrent/video streaming hybrid apps** for metadata or fallback streams
-- Educational/research apps that explore **video trends by category**
+### Import the plugin
 
----
+```dart
+import 'package:flutter_ytdlp_plugin/flutter_ytdlp_plugin.dart';
+```
 
-## 🔐 Disclaimer
+### Initialize
 
-This project is intended for **educational and research purposes only**. It is not affiliated with or endorsed by YouTube or Google.
-
-- Please respect YouTube’s [Terms of Service](https://www.youtube.com/t/terms).
-- Do **not** use this plugin for scraping copyrighted content or violating content restrictions.
-- **You are solely responsible** for how you use this plugin.
+```dart
+final ytdlp = FlutterYtdlpPlugin();
+```
 
 ---
 
-## 🛠 Contributing
+## 📘 API Methods
 
-We welcome PRs and new features! Here's how to contribute:
+### 1. Check Video Status
 
-1. Fork the repository
-2. Clone and set up your environment (`flutter pub get`, `Chaquopy`, etc.)
-3. Add your feature or fix
-4. Submit a PR with a clear description
+```dart
+final status = await ytdlp.checkStatus(videoId: 'dQw4w9WgXcQ');
+print(status);
+```
+
+**Response:**
+
+```json
+{
+  "available": true,
+  "status": "available",
+  "error": null
+}
+```
+
+- `available`: `bool`
+- `status`: `String` (`'available'`, `'private'`, `'age_restricted'`, etc.)
+- `error`: `String?` (nullable)
 
 ---
 
-## 🙌 Acknowledgments
+### 2. Get Video Streams
 
-- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) – the heart of the plugin
-- [`Chopqy`](https://github.com/golanpiyush/chopqy) – backend bridge
-- [`Chaquopy`](https://chaquo.com/chaquopy/) – Python in Android made easy
+```dart
+final streams = await ytdlp.getVideoStreams(
+  videoId: 'dQw4w9WgXcQ',
+  quality: '1080p', // Default: 1080p
+);
+print(streams);
+```
+
+**Returns:** `List<Map<String, dynamic>>`
+
+```json
+[
+  {
+    "url": "...",
+    "ext": "mp4",
+    "resolution": "1920x1080",
+    "height": 1080,
+    "width": 1920,
+    "bitrate": 2500.0,
+    "codec": "avc1.640028",
+    "filesize": 12345678,
+    "formatNote": "1080p",
+    "formatId": "137"
+  }
+]
+```
 
 ---
 
-## 📜 License
+### 3. Get Audio Streams
 
-MIT License © 2025 [Piyush Golan](https://github.com/golanpiyush)
+```dart
+final streams = await ytdlp.getAudioStreams(
+  videoId: 'dQw4w9WgXcQ',
+  bitrate: 192, // Default: 192 kbps
+  codec: 'opus', // Optional
+);
+print(streams);
+```
+
+**Returns:** `List<Map<String, dynamic>>`
+
+```json
+[
+  {
+    "url": "...",
+    "ext": "webm",
+    "bitrate": 192,
+    "codec": "opus",
+    "filesize": 4321000,
+    "formatId": "251"
+  }
+]
+```
 
 ---
 
-> _“I stand by those who build tools that empower, not distract. This plugin is for seekers of knowledge, not consumers of noise.”_  
-> — ✨ Piyush Golan
+### 4. Get Unified Streams (Video + Audio)
+
+```dart
+final result = await ytdlp.getUnifiedStreams(
+  videoId: 'dQw4w9WgXcQ',
+  audioBitrate: 192,
+  videoQuality: '1080p',
+  audioCodec: 'opus', // Optional
+  videoCodec: 'avc1', // Optional
+  includeVideo: true,  // Default: true
+  includeAudio: true,  // Default: true
+);
+print(result);
+```
+
+**Response:**
+
+```json
+{
+  "duration": 213,
+  "video": [ ... ],
+  "audio": [ ... ]
+}
+```
+
+- `duration`: `int` (seconds)
+- `video`: `List<Map<String, dynamic>>?` (optional)
+- `audio`: `List<Map<String, dynamic>>?` (optional)
+
+---
+
+## ❗ Error Handling
+
+Exceptions are thrown as `PlatformException` with the following error codes:
+
+| Error Code        | Description                     |
+|-------------------|---------------------------------|
+| `INVALID_ARGUMENT` | Missing required parameters     |
+| `PYTHON_ERROR`     | Python execution failed         |
+| `EXCEPTION`        | Unexpected error occurred       |
+
+---
+
+## 🧪 Example
+
+```dart
+try {
+  final status = await ytdlp.checkStatus(videoId: videoUrl);
+  if (status['available'] == true) {
+    final streams = await ytdlp.getUnifiedStreams(
+      videoId: videoUrl,
+      videoQuality: '720p',
+      audioBitrate: 128,
+    );
+    // Use streams...
+  }
+} on PlatformException catch (e) {
+  print('Error: ${e.message}');
+}
+```
+
+---
+
+## ⚠️ Limitations
+
+- **Android only**: iOS is not supported due to Python runtime restrictions.
+- **Larger APK size**: Adds ~25MB because of embedded Python.
+- **No downloading**: Only extracts stream information; does **not** download media.
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome!  
+For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+## 🎉 Happy Streaming!
